@@ -1,30 +1,27 @@
-import {  Card, Typography } from "antd";
+import { Card, Typography } from "antd";
 import { useEffect, useState } from "react"
+import TimeProgress from "./TimeProgress";
 
 const { Title } = Typography;
 
+const getNow = () => new Date().toLocaleTimeString('zh-TW', {
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: true
+})
+
 function App() {
-  const [currentTime, setCurrentTime] = useState('')
-  const [group, setGroup] = useState(1)
+  const [currentTime, setCurrentTime] = useState(getNow())
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentTime(new Date().toLocaleTimeString('zh-TW', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
-      }));
+      setCurrentTime(getNow())
     }, 1000);
     return () => clearInterval(interval)
 
   }, [])
 
-  useEffect(() => {
-    chrome.storage.sync.get(['group'], (result) => {
-      console.log(result)
-      setGroup(result.group || 1)
-    })
-  }, [])
+
 
   return (
     <Card
@@ -35,6 +32,7 @@ function App() {
         padding: '12px'
       }}
     >
+      <TimeProgress />
       <Title
         level={2}
         style={{
@@ -47,7 +45,7 @@ function App() {
       >
         {currentTime}
       </Title>
-      {group && <Title level={4} style={{ color: '#00ff00' }}>組數：{group}</Title>}
+      
     </Card>
   )
 }
