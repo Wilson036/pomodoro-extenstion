@@ -1,6 +1,8 @@
-import { Card, Typography } from "antd";
+import { Button, Card, Space, Typography } from "antd";
 import { useEffect, useState } from "react"
 import TimeProgress from "./TimeProgress";
+import { PauseCircleOutlined, PlayCircleOutlined, SettingOutlined } from "@ant-design/icons";
+import { useTimeCounter } from "@/hooks/useTimeCounter";
 
 const { Title } = Typography;
 
@@ -13,6 +15,7 @@ const getNow = () => new Date().toLocaleTimeString('zh-TW', {
 
 function App() {
   const [currentTime, setCurrentTime] = useState(getNow())
+  const { timeLeft, isRunning, initialTime, onStartTimer, onPauseTimer } = useTimeCounter()
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(getNow())
@@ -32,7 +35,29 @@ function App() {
         padding: '12px'
       }}
     >
-      <TimeProgress />
+      <TimeProgress timeLeft={timeLeft} isRunning={isRunning} initialTime={initialTime} />
+      <Space>
+        <Button
+          icon={<PlayCircleOutlined />}
+          onClick={onStartTimer}
+        >
+          開始
+        </Button>
+        <Button
+          icon={<PauseCircleOutlined />}
+          onClick={onPauseTimer}
+        >
+          暫停
+        </Button>
+        <Button
+          icon={<SettingOutlined />}
+          onClick={() => {
+            chrome.runtime.sendMessage({
+              type: "open-options",
+            });
+          }}
+        />
+      </Space>
       <Title
         level={2}
         style={{
@@ -51,3 +76,5 @@ function App() {
 }
 
 export default App
+
+
