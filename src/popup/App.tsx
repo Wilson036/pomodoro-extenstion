@@ -1,31 +1,24 @@
-import { Button, Card, Space, Typography } from "antd";
-import { useEffect, useState } from "react"
+import { Button, Card, Space } from "antd";
 import TimeProgress from "./TimeProgress";
 import { PauseCircleOutlined, PlayCircleOutlined, SettingOutlined } from "@ant-design/icons";
 import { useTimeCounter } from "@/hooks/useTimeCounter";
+import CurrentTime from "./CurrentTime";
+import { useState } from "react";
+import Settings from "./Settings";
 
-const { Title } = Typography;
 
-const getNow = () => new Date().toLocaleTimeString('zh-TW', {
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-  hour12: true
-})
 
 function App() {
-  const [currentTime, setCurrentTime] = useState(getNow())
+  const [isSettings, setIsSettings] = useState(false)
   const { timeLeft, isRunning, initialTime, onStartTimer, onPauseTimer } = useTimeCounter()
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(getNow())
-    }, 1000);
-    return () => clearInterval(interval)
+  
+  const onToggleSettings = () => {
+    setIsSettings(!isSettings)
+  }
 
-  }, [])
-
-
-
+  if (isSettings) {
+    return <Settings onToggleSettings={onToggleSettings} />
+  }
   return (
     <Card
       style={{
@@ -51,26 +44,10 @@ function App() {
         </Button>
         <Button
           icon={<SettingOutlined />}
-          onClick={() => {
-            chrome.runtime.sendMessage({
-              type: "open-options",
-            });
-          }}
+          onClick={onToggleSettings}
         />
       </Space>
-      <Title
-        level={2}
-        style={{
-          color: '#00ff00',
-          fontFamily: 'Courier New, monospace',
-          margin: 0,
-          fontSize: '24px',
-          letterSpacing: '2px'
-        }}
-      >
-        {currentTime}
-      </Title>
-      
+      <CurrentTime />
     </Card>
   )
 }

@@ -1,8 +1,8 @@
+import { TimerState } from "@/types";
 import { useEffect, useState } from "react";
 import { useRef } from "react";
-import { TimerState } from "../../dist/src/types";
 
-// 保存狀態到 Chrome Storage
+
 const saveState = async (state: TimerState) => {
   try {
     await chrome.storage.local.set({
