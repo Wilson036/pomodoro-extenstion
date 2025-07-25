@@ -1,4 +1,5 @@
 import { Progress } from "antd";
+import { useEffect } from "react";
 
 interface TimeProgressProps {
   timeLeft: number;
@@ -24,7 +25,12 @@ const TimeProgress = ({
   const getProgress = () => {
     return ((initialTime - timeLeft) / initialTime) * 100;
   };
-
+  useEffect(() => {
+    const root = document.body;
+    if (root) {
+      root.style.minHeight = "270px";
+    }
+  }, []);
   return (
     <>
       <Progress

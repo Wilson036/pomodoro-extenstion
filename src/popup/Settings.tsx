@@ -1,16 +1,24 @@
-import { Button, Form, InputNumber, Space, Typography } from "antd";
+import { Button, Card, Form, InputNumber, Space, Typography } from "antd";
 const { Title } = Typography;
 
 const Settings = ({ onToggleSettings }: { onToggleSettings: () => void }) => {
   const [form] = Form.useForm();
   return (
-    <>
+    <Card
+      style={{
+        background: "#fff",
+        borderRadius: "8px",
+        textAlign: "center",
+        padding: "12px",
+      }}
+    >
       <Title level={2}>設定</Title>
       <Form form={form} layout="vertical">
         <Form.List name="timeSettings">
           {(fields, { add, remove }) => (
             <>
               {fields.map((field) => (
+                <>
                 <Form.Item
                   key={field.key}
                   label="時間"
@@ -18,6 +26,14 @@ const Settings = ({ onToggleSettings }: { onToggleSettings: () => void }) => {
                 >
                   <TimeSetting />
                 </Form.Item>
+                    <Form.Item
+                    key={field.key}
+                    label="休修時間"
+                    name={[field.name, "breakTime"]}
+                  >
+                    <TimeSetting />
+                  </Form.Item>
+                  </>
               ))}
               <Form.Item>
                 <Button type="primary" onClick={() => add({ time: 0 })}>
@@ -33,7 +49,7 @@ const Settings = ({ onToggleSettings }: { onToggleSettings: () => void }) => {
           </Button>
         </Form.Item>
       </Form>
-    </>
+    </Card>
   );
 };
 
