@@ -1,6 +1,18 @@
+import { saveSettings } from "@/utils/settingsStorage";
 import { Button, Card, Form, InputNumber, Space, Typography, Collapse } from "antd";
 import { useRef, useState } from "react";
 const { Title } = Typography;
+
+const DEFAULT_CYCLE = [{
+  focusTime: {
+    minutes: 0,
+    seconds: 0,
+  },
+  breakTime: {
+    minutes: 0,
+    seconds: 0,
+  },
+}]
 
 const Settings = ({ onToggleSettings }: { onToggleSettings: () => void }) => {
   const [form] = Form.useForm();
@@ -18,7 +30,10 @@ const Settings = ({ onToggleSettings }: { onToggleSettings: () => void }) => {
       <Title level={2}>設定</Title>
       <Form
         form={form}
-        
+        initialValues={{timeSettings:DEFAULT_CYCLE}}
+        onFinish={ ({timeSettings}) => {
+          saveSettings(timeSettings)
+        }}
       >
         <Form.List name="timeSettings">
           {(fields, { add, remove }) => (
@@ -48,7 +63,7 @@ const Settings = ({ onToggleSettings }: { onToggleSettings: () => void }) => {
                       key={index}
                     >
                       <Form.Item
-                        name={[field.name, "time"]}
+                        name={[field.name, "focusTime"]}
                         style={{ marginBottom: 12 }}
                       >
                         <TimeSetting label="專注時間" />
@@ -82,11 +97,9 @@ const Settings = ({ onToggleSettings }: { onToggleSettings: () => void }) => {
                       });
                     }, 100);
                   }}>
-                    新增
+                    新增 Cycle
                   </Button>
-                  <Button type="primary" onClick={() => {
-                    console.log('form.getFieldsValue()', form.getFieldsValue());
-                  }}>
+                  <Button type="primary" htmlType="submit">
                     設定
                   </Button>
                 </Space>
