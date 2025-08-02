@@ -1,19 +1,30 @@
-import { saveSettings } from "@/utils/settingsStorage";
-import { Button, Card, Form, InputNumber, Space, Typography, Collapse } from "antd";
-import { useRef, useState } from "react";
+import { saveSettings } from '@/utils/settingsStorage';
+import {
+  Button,
+  Card,
+  Form,
+  InputNumber,
+  Space,
+  Typography,
+  Collapse,
+} from 'antd';
+import { useRef, useState } from 'react';
 const { Title } = Typography;
 
-const DEFAULT_CYCLE = [{
-  focusTime: {
-    minutes: 0,
-    seconds: 0,
+const DEFAULT_CYCLE = [
+  {
+    focusTime: {
+      minutes: 0,
+      seconds: 0,
+    },
+    breakTime: {
+      minutes: 0,
+      seconds: 0,
+    },
   },
-  breakTime: {
-    minutes: 0,
-    seconds: 0,
-  },
-}]
-
+];
+//TODO: 完成設定後，返回主頁面，並顯示設定值
+// 時間資料轉換成秒轉
 const Settings = ({ onToggleSettings }: { onToggleSettings: () => void }) => {
   const [form] = Form.useForm();
   const [activeKey, setActiveKey] = useState<string[]>(['0']);
@@ -21,18 +32,18 @@ const Settings = ({ onToggleSettings }: { onToggleSettings: () => void }) => {
   return (
     <Card
       style={{
-        background: "#fff",
-        borderRadius: "8px",
-        textAlign: "center",
-        padding: "12px",
+        background: '#fff',
+        borderRadius: '8px',
+        textAlign: 'center',
+        padding: '12px',
       }}
     >
       <Title level={2}>設定</Title>
       <Form
         form={form}
-        initialValues={{timeSettings:DEFAULT_CYCLE}}
-        onFinish={ ({timeSettings}) => {
-          saveSettings(timeSettings)
+        initialValues={{ timeSettings: DEFAULT_CYCLE }}
+        onFinish={({ timeSettings }) => {
+          saveSettings(timeSettings);
         }}
       >
         <Form.List name="timeSettings">
@@ -41,41 +52,36 @@ const Settings = ({ onToggleSettings }: { onToggleSettings: () => void }) => {
               <div
                 style={{
                   maxHeight: 248,
-                  overflowY: "auto",
+                  overflowY: 'auto',
                   marginBottom: 12,
                 }}
                 ref={containerRef}
               >
                 {fields.map((field, index) => (
-                  <Collapse 
+                  <Collapse
                     key={field.key}
-                    defaultActiveKey={['1']} 
+                    defaultActiveKey={['1']}
                     size="small"
                     style={{ borderRadius: 0 }}
                     activeKey={activeKey}
-                    onChange={(key) => {
+                    onChange={key => {
                       const keys = Array.isArray(key) ? key : key ? [key] : [];
                       setActiveKey(keys);
                     }}
                   >
-                    <Collapse.Panel 
-                      header={`Cycle ${index + 1}`} 
-                      key={index}
-                    >
+                    <Collapse.Panel header={`Cycle ${index + 1}`} key={index}>
                       <Form.Item
-                        name={[field.name, "focusTime"]}
+                        name={[field.name, 'focusTime']}
                         style={{ marginBottom: 12 }}
                       >
                         <TimeSetting label="專注時間" />
                       </Form.Item>
-                      <Form.Item
-                        name={[field.name, "breakTime"]}
-                      >
+                      <Form.Item name={[field.name, 'breakTime']}>
                         <TimeSetting label="休息時間" />
                       </Form.Item>
-                      <Button 
-                        type="link" 
-                        danger 
+                      <Button
+                        type="link"
+                        danger
                         onClick={() => remove(field.name)}
                         style={{ marginTop: 8 }}
                       >
@@ -86,20 +92,23 @@ const Settings = ({ onToggleSettings }: { onToggleSettings: () => void }) => {
                 ))}
               </div>
               <Form.Item>
-                <Space>
-                  <Button type="primary" onClick={() => {
-                    add({ time: 0 });
-                    setActiveKey([fields.length.toString()]);
-                    setTimeout(() => {
-                      containerRef.current?.scrollTo({
-                        top: containerRef.current?.scrollHeight,
-                        behavior: "smooth",
-                      });
-                    }, 100);
-                  }}>
+                <Space style={{ width: '100%' }} direction="horizontal">
+                  <Button
+                    onClick={() => {
+                      add({ time: 0 });
+                      setActiveKey([fields.length.toString()]);
+                      setTimeout(() => {
+                        containerRef.current?.scrollTo({
+                          top: containerRef.current?.scrollHeight,
+                          behavior: 'smooth',
+                        });
+                      }, 100);
+                    }}
+                    size="large"
+                  >
                     新增 Cycle
                   </Button>
-                  <Button type="primary" htmlType="submit">
+                  <Button type="primary" htmlType="submit" size="large">
                     設定
                   </Button>
                 </Space>
@@ -130,11 +139,11 @@ const TimeSetting = ({
 }) => {
   const { minutes, seconds } = value ?? { minutes: 0, seconds: 0 };
   return (
-    <Space style={{ width: "100%" }}>
+    <Space style={{ width: '100%' }}>
       <Typography.Text>{label}</Typography.Text>
       <InputNumber
         value={minutes}
-        onChange={(value) => onChange?.({ minutes: value ?? 0, seconds })}
+        onChange={value => onChange?.({ minutes: value ?? 0, seconds })}
         changeOnWheel
         controls
         step={1}
@@ -144,7 +153,7 @@ const TimeSetting = ({
       />
       <InputNumber
         value={seconds}
-        onChange={(value) => onChange?.({ minutes, seconds: value ?? 0 })}
+        onChange={value => onChange?.({ minutes, seconds: value ?? 0 })}
         changeOnWheel
         controls
         step={1}
