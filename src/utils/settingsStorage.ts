@@ -1,4 +1,9 @@
-import type { PomodoroSettings, TimeSettings, TimeType } from '@/types';
+import type {
+  CycleSettings,
+  PomodoroSettings,
+  TimeSettings,
+  TimeType,
+} from '@/types';
 
 // 保存設定到 Chrome Storage
 export const saveSettings = async (
@@ -16,26 +21,24 @@ export const saveSettings = async (
 };
 
 // 從 Chrome Storage 載入設定
-export const loadSettings = async (): Promise<PomodoroSettings | null> => {
+export const loadSettings = async (): Promise<CycleSettings[]> => {
   try {
     const result = await chrome.storage.sync.get(['pomodoroSettings']);
-    return result.pomodoroSettings;
+    return result.pomodoroSettings ?? [];
   } catch (error) {
     console.error('載入設定失敗:', error);
-    return null;
+    return [];
   }
 };
 
 // 獲取預設設定
-export const getDefaultSettings = (): PomodoroSettings => {
-  return {
-    timeSettings: [
-      {
-        focusTime: { minutes: 25, seconds: 0 },
-        breakTime: { minutes: 5, seconds: 0 },
-      },
-    ],
-  };
+export const getDefaultSettings = (): CycleSettings[] => {
+  return [
+    {
+      focusTime: { minutes: 25, seconds: 0 },
+      breakTime: { minutes: 5, seconds: 0 },
+    },
+  ];
 };
 
 // 轉換函數 - 將時間設定轉為秒數
@@ -50,20 +53,22 @@ export const getCurrentTimeSettings = async (options: {
 }) => {
   const { cycleIndex = 0, timeType } = options;
   const settings = await loadSettings();
-  const { timeSettings = [] } = settings || {};
-
-  if (timeSettings.length === 0) {
+  if (!settings?.length) {
     const defaultSettings = getDefaultSettings();
-    return timeType === 'focus'
-      ? defaultSettings.timeSettings[0].focusTime
-      : defaultSettings.timeSettings[0].breakTime;
+    const [firstSetting] = defaultSettings;
+
+    return {
+      timeSettings:
+        timeType === 'focus' ? firstSetting.focusTime : firstSetting.breakTime,
+      cycleIndex: 0,
+      totalCycles: 1,
+    };
   }
 
-  const cycle = timeSettings[cycleIndex] || timeSettings[0];
-  return timeType === 'focus' ? cycle.focusTime : cycle.breakTime;
-};
-
-export const getTotalCycles = async (): Promise<number> => {
-  const settings = await loadSettings();
-  return settings?.timeSettings?.length || 1;
+  const cycle = settings[cycleIndex] || settings[0];
+  return {
+    timeSettings: timeType === 'focus' ? cycle.focusTime : cycle.breakTime,
+    cycleIndex,
+    totalCycles: settings.length,
+  };
 };

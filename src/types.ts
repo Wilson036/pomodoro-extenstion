@@ -22,5 +22,5 @@ export type CycleSettings = {
 };
 
 export type PomodoroSettings = {
-  timeSettings: CycleSettings[];
+  settings: CycleSettings[];
 };

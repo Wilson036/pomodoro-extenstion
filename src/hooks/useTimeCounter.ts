@@ -4,7 +4,6 @@ import { useRef } from 'react';
 import {
   getCurrentTimeSettings,
   timeSettingsToSeconds,
-  getTotalCycles,
 } from '@/utils/settingsStorage';
 
 const saveState = async (state: TimerState) => {
@@ -56,7 +55,6 @@ export const useTimeCounter = () => {
     const initializeTimer = async () => {
       try {
         // 載入總週期數
-        const cycles = await getTotalCycles();
 
         // 載入已保存的狀態
         const savedState = await loadState();
@@ -69,11 +67,11 @@ export const useTimeCounter = () => {
             lastUpdate,
             currentCycle: savedCurrentCycle = 0,
             focusTimeType: savedTimeType = 'focus',
-            totalCycles: savedTotalCycles = cycles,
+            totalCycles: savedTotalCycles,
           } = savedState;
 
           // 載入對應的時間設定
-          const timeSettings = await getCurrentTimeSettings({
+          const { timeSettings, totalCycles } = await getCurrentTimeSettings({
             cycleIndex: savedCurrentCycle,
             timeType: savedTimeType,
           });
@@ -88,7 +86,7 @@ export const useTimeCounter = () => {
               timeLeft: updatedTimeLeft,
               isRunning: updatedTimeLeft > 0,
               currentCycle: savedCurrentCycle,
-              totalCycles: savedTotalCycles,
+              totalCycles,
               focusTimeType: savedTimeType,
               startTime,
             });
@@ -104,7 +102,7 @@ export const useTimeCounter = () => {
           });
         } else {
           // 沒有保存狀態，使用預設設定
-          const timeSettings = await getCurrentTimeSettings({
+          const { timeSettings, totalCycles } = await getCurrentTimeSettings({
             cycleIndex: 0,
             timeType: 'focus',
           });
@@ -115,7 +113,7 @@ export const useTimeCounter = () => {
             timeLeft: initialSeconds,
             isRunning: false,
             currentCycle: 0,
-            totalCycles: cycles,
+            totalCycles,
             focusTimeType: 'focus',
           });
         }
@@ -196,7 +194,7 @@ export const useTimeCounter = () => {
       }
 
       // 載入新階段的時間設定
-      const timeSettings = await getCurrentTimeSettings({
+      const { timeSettings } = await getCurrentTimeSettings({
         cycleIndex: nextCycle,
         timeType: nextTimeType,
       });
@@ -222,7 +220,7 @@ export const useTimeCounter = () => {
   // 重置到第一組專注時間
   const resetToStart = async () => {
     try {
-      const timeSettings = await getCurrentTimeSettings({
+      const { timeSettings } = await getCurrentTimeSettings({
         cycleIndex: 0,
         timeType: 'focus',
       });
