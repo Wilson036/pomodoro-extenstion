@@ -18,12 +18,10 @@ export const useSettingsInitializer = (): UseSettingsInitializerReturn => {
     try {
       setIsLoading(true);
       setError(null);
-
+      const settings = await loadSettings();
       // 初始化設定（如果沒有設定檔會創建預設設定）
       const initializedSettings = getDefaultSettings();
-      setSettings(initializedSettings);
-
-      console.log('設定初始化完成:', initializedSettings);
+      setSettings(settings || initializedSettings);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : '初始化設定失敗';
