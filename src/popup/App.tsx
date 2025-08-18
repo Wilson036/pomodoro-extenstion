@@ -1,4 +1,4 @@
-import { Button, Card, Space, Typography } from 'antd';
+import { Button, Card, Space } from 'antd';
 import TimeProgress from './TimeProgress';
 import {
   PauseCircleOutlined,
@@ -41,16 +41,13 @@ function App() {
         padding: '12px',
       }}
     >
-      <Typography.Title level={5}>
-        <h2>
-          第 {currentCycle + 1} 組 / 共 {totalCycles} 組
-        </h2>
-        <h3>{isFocusTime ? '🍅 專注時間' : '☕ 休息時間'}</h3>
-      </Typography.Title>
       <TimeProgress
         timeLeft={timeLeft}
         isRunning={isRunning}
         initialTime={initialTime}
+        currentCycle={currentCycle}
+        isFocusTime={isFocusTime}
+        totalCycles={totalCycles}
       />
       <Space>
         {!isRunning ? (

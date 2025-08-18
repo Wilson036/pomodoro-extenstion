@@ -59,49 +59,8 @@ export const useTimeCounter = () => {
         // 載入已保存的狀態
         const savedState = await loadState();
 
-        if (savedState) {
-          const {
-            timeLeft: savedTimeLeft,
-            isRunning: savedIsRunning,
-            startTime,
-            lastUpdate,
-            currentCycle: savedCurrentCycle = 0,
-            focusTimeType: savedTimeType = 'focus',
-            totalCycles: savedTotalCycles,
-          } = savedState;
-
-          // 載入對應的時間設定
-          const { timeSettings, totalCycles } = await getCurrentTimeSettings({
-            cycleIndex: savedCurrentCycle,
-            timeType: savedTimeType,
-          });
-          const initialSeconds = timeSettingsToSeconds(timeSettings);
-          setInitialTime(initialSeconds);
-
-          if (savedIsRunning && startTime && lastUpdate) {
-            const elapsedSeconds = Math.floor((Date.now() - lastUpdate) / 1000);
-            const updatedTimeLeft = Math.max(0, savedTimeLeft - elapsedSeconds);
-
-            setTimerState({
-              timeLeft: updatedTimeLeft,
-              isRunning: updatedTimeLeft > 0,
-              currentCycle: savedCurrentCycle,
-              totalCycles,
-              focusTimeType: savedTimeType,
-              startTime,
-            });
-            return;
-          }
-          setTimerState({
-            timeLeft: savedTimeLeft,
-            isRunning: savedIsRunning,
-            currentCycle: savedCurrentCycle,
-            totalCycles: savedTotalCycles,
-            focusTimeType: savedTimeType,
-            startTime,
-          });
-        } else {
-          // 沒有保存狀態，使用預設設定
+        // 使用預設設定作為 fallback
+        if (!savedState) {
           const { timeSettings, totalCycles } = await getCurrentTimeSettings({
             cycleIndex: 0,
             timeType: 'focus',
@@ -116,7 +75,50 @@ export const useTimeCounter = () => {
             totalCycles,
             focusTimeType: 'focus',
           });
+          return;
         }
+
+        // 處理已保存的狀態
+        const {
+          timeLeft: savedTimeLeft,
+          isRunning: savedIsRunning,
+          startTime,
+          lastUpdate,
+          currentCycle: savedCurrentCycle = 0,
+          focusTimeType: savedTimeType = 'focus',
+        } = savedState;
+
+        // 載入對應的時間設定
+        const { timeSettings, totalCycles } = await getCurrentTimeSettings({
+          cycleIndex: savedCurrentCycle,
+          timeType: savedTimeType,
+        });
+        const initialSeconds = timeSettingsToSeconds(timeSettings);
+        setInitialTime(initialSeconds);
+
+        // 計算運行中計時器的剩餘時間
+        const calculateTimeLeft = () => {
+          if (!savedIsRunning || !startTime || !lastUpdate) {
+            return { timeLeft: savedTimeLeft, isRunning: savedIsRunning };
+          }
+
+          const elapsedSeconds = Math.floor((Date.now() - lastUpdate) / 1000);
+          const updatedTimeLeft = Math.max(0, savedTimeLeft - elapsedSeconds);
+          return {
+            timeLeft: updatedTimeLeft,
+            isRunning: updatedTimeLeft > 0,
+          };
+        };
+
+        const { timeLeft, isRunning } = calculateTimeLeft();
+        setTimerState({
+          timeLeft,
+          isRunning,
+          currentCycle: savedCurrentCycle,
+          totalCycles,
+          focusTimeType: savedTimeType,
+          startTime,
+        });
       } catch (error) {
         console.error('初始化計時器失敗:', error);
         setTimerState(getDefaultState());
@@ -143,11 +145,6 @@ export const useTimeCounter = () => {
 
             // 保存完成狀態
             saveState(completedState);
-            console.log(
-              `${
-                prevState.focusTimeType === 'focus' ? '專注時間' : '休息時間'
-              }結束！`
-            );
 
             return completedState;
           }
