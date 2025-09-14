@@ -79,9 +79,46 @@ const Settings = ({ onToggleSettings }: { onToggleSettings: () => void }) => {
                           ? [key]
                           : [];
                         setActiveKey(keys);
+
+                        // Auto-scroll when expanding panels
+                        setTimeout(() => {
+                          if (containerRef.current) {
+                            const expandedPanels =
+                              containerRef.current.querySelectorAll(
+                                '.ant-collapse-item-active'
+                              );
+                            if (expandedPanels.length > 0) {
+                              const lastExpandedPanel =
+                                expandedPanels[expandedPanels.length - 1];
+                              const panelRect =
+                                lastExpandedPanel.getBoundingClientRect();
+                              const containerRect =
+                                containerRef.current.getBoundingClientRect();
+                              const scrollTop = containerRef.current.scrollTop;
+                              const containerHeight =
+                                containerRef.current.clientHeight;
+                              const targetScrollTop =
+                                scrollTop +
+                                (panelRect.bottom - containerRect.top) -
+                                containerHeight;
+
+                              containerRef.current.scrollTo({
+                                top: Math.max(0, targetScrollTop),
+                                behavior: 'smooth',
+                              });
+                            }
+                          }
+                        }, 300);
                       }}
                     >
-                      <Collapse.Panel header={`Cycle ${index + 1}`} key={index}>
+                      <Collapse.Panel
+                        header={
+                          <div style={{ textAlign: 'center' }}>{`Cycle ${
+                            index + 1
+                          }`}</div>
+                        }
+                        key={index}
+                      >
                         <Form.Item
                           name={[field.name, 'focusTime']}
                           style={{ marginBottom: 12 }}
