@@ -82,16 +82,32 @@ const Settings = ({ onToggleSettings }: { onToggleSettings: () => void }) => {
 
                         // Auto-scroll when expanding panels
                         setTimeout(() => {
-                          if (containerRef.current) {
-                            const expandedPanels =
-                              containerRef.current.querySelectorAll(
+                          if (containerRef.current && keys.length > 0) {
+                            // Find the currently expanded panel by the active key
+                            const currentActiveKey = keys[keys.length - 1];
+                            const currentActiveIndex = parseInt(currentActiveKey);
+                            const nextPanelIndex = currentActiveIndex + 1;
+
+                            // Check if current panel is not the last one and next panel is also open
+                            const isNotLastPanel = nextPanelIndex < fields.length;
+                            const isNextPanelOpen = keys.includes(nextPanelIndex.toString());
+
+                            // Skip scrolling if current is not last and next panel is open
+                            if (isNotLastPanel && isNextPanelOpen) {
+                              return;
+                            }
+
+                            const currentExpandedPanel =
+                              containerRef.current.querySelector(
+                                `[data-key="${currentActiveKey}"]`
+                              ) || containerRef.current.querySelectorAll(
                                 '.ant-collapse-item-active'
-                              );
-                            if (expandedPanels.length > 0) {
-                              const lastExpandedPanel =
-                                expandedPanels[expandedPanels.length - 1];
+                              )[parseInt(currentActiveKey)] || containerRef.current.querySelectorAll(
+                                '.ant-collapse-item-active'
+                              )[keys.length - 1];
+                            if (currentExpandedPanel) {
                               const panelRect =
-                                lastExpandedPanel.getBoundingClientRect();
+                                currentExpandedPanel.getBoundingClientRect();
                               const containerRect =
                                 containerRef.current.getBoundingClientRect();
                               const scrollTop = containerRef.current.scrollTop;
